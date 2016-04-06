@@ -1,7 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # This script builds the application from source for multiple platforms.
-set -e
 
 # Get the parent directory of where this script is.
 SOURCE="${BASH_SOURCE[0]}"
@@ -17,11 +16,7 @@ GIT_DIRTY=$(test -n "`git status --porcelain`" && echo "+CHANGES" || true)
 
 # Determine the arch/os combos we're building for
 XC_ARCH=${XC_ARCH:-"386 amd64 arm"}
-XC_OS=${XC_OS:-linux darwin windows freebsd openbsd}
-
-# Install dependencies
-echo "==> Getting dependencies..."
-go get ./...
+XC_OS=${XC_OS:-linux darwin windows freebsd openbsd solaris}
 
 # Delete the old dir
 echo "==> Removing old directory..."
@@ -30,21 +25,32 @@ rm -rf pkg/*
 mkdir -p bin/
 
 # If its dev mode, only build for ourself
-if [ "${MEDIATOOL_DEV}x" != "x" ]; then
+if [ "${MT_DEV}x" != "x" ]; then
     XC_OS=$(go env GOOS)
     XC_ARCH=$(go env GOARCH)
+fi
+
+if ! which gox > /dev/null; then
+    echo "==> Installing gox..."
+    go get -u github.com/mitchellh/gox
 fi
 
 # Build!
 echo "==> Building..."
 gox \
     -os="${XC_OS}" \
-    -os="!freebsd" \
-    -os="!openbsd" \
     -arch="${XC_ARCH}" \
-    -ldflags "-X main.GitCommit ${GIT_COMMIT}${GIT_DIRTY}" \
-    -output "pkg/{{.OS}}_{{.Arch}}/mediatool" \
-    .
+    -ldflags "-X main.GitCommit=${GIT_COMMIT}${GIT_DIRTY}" \
+    -output "pkg/{{.OS}}_{{.Arch}}/mediatool-{{.Dir}}" \
+    $(go list ./... | grep -v /vendor/)
+
+# Make sure "mediatool-mediatool" is renamed properly
+for PLATFORM in $(find ./pkg -mindepth 1 -maxdepth 1 -type d); do
+    set +e
+    mv ${PLATFORM}/mediatool-mediatool.exe ${PLATFORM}/mediatool.exe 2>/dev/null
+    mv ${PLATFORM}/mediatool-mediatool ${PLATFORM}/mediatool 2>/dev/null
+    set -e
+done
 
 # Move all the compiled things to the $GOPATH/bin
 GOPATH=${GOPATH:-$(go env GOPATH)}
@@ -57,6 +63,12 @@ OLDIFS=$IFS
 IFS=: MAIN_GOPATH=($GOPATH)
 IFS=$OLDIFS
 
+# Create GOPATH/bin if it's doesn't exists
+if [ ! -d $MAIN_GOPATH/bin ]; then
+    echo "==> Creating GOPATH/bin directory..."
+    mkdir -p $MAIN_GOPATH/bin
+fi
+
 # Copy our OS/Arch to the bin/ directory
 DEV_PLATFORM="./pkg/$(go env GOOS)_$(go env GOARCH)"
 for F in $(find ${DEV_PLATFORM} -mindepth 1 -maxdepth 1 -type f); do
@@ -64,7 +76,7 @@ for F in $(find ${DEV_PLATFORM} -mindepth 1 -maxdepth 1 -type f); do
     cp ${F} ${MAIN_GOPATH}/bin/
 done
 
-if [ "${MEDIATOOL_DEV}x" = "x" ]; then
+if [ "${MT_DEV}x" = "x" ]; then
     # Zip and copy to the dist dir
     echo "==> Packaging..."
     for PLATFORM in $(find ./pkg -mindepth 1 -maxdepth 1 -type d); do

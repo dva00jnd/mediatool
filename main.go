@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/media-tool/mediatool/helper/logging"
 	"github.com/mitchellh/cli"
 	"github.com/mitchellh/panicwrap"
 	"github.com/mitchellh/prefixedio"
@@ -23,7 +24,7 @@ func realMain() int {
 
 	if !panicwrap.Wrapped(&wrapConfig) {
 		// Determine where logs should go in general (requested by the user)
-		logWriter, err := logOutput()
+		logWriter, err := logging.LogOutput()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Couldn't setup log output: %s", err)
 			return 1
@@ -81,12 +82,12 @@ func wrappedMain() int {
 	// Load the configuration
 	config := BuiltinConfig
 	if err := config.Discover(); err != nil {
-		Ui.Error(fmt.Sprintf("Error discovering plugins: %s", err))
+		UI.Error(fmt.Sprintf("Error discovering plugins: %s", err))
 		return 1
 	}
 
 	// Make sure we clean up any managed plugins at the end
-	defer plugin.CleanupClients()
+	// defer plugin.CleanupClients()
 
 	// Get the command line args
 	args := os.Args[1:]
@@ -110,26 +111,26 @@ func wrappedMain() int {
 	// Load the configuration file if we have one, that can be used to define extra plugins.
 	clicfgFile, err := cliConfigFile()
 	if err != nil {
-		Ui.Error(fmt.Sprintf("Error loading CLI configuration: \n\n%s", err))
+		UI.Error(fmt.Sprintf("Error loading CLI configuration: \n\n%s", err))
 		return 1
 	}
 
 	if clicfgFile != "" {
-		usrcfg, err := LoadConfig(clicfgFile)
-		if err != nil {
-			Ui.Error(fmt.Sprintf("Error loading CLI configuration: \n\n%s", err))
+		usrcfg, err2 := LoadConfig(clicfgFile)
+		if err2 != nil {
+			UI.Error(fmt.Sprintf("Error loading CLI configuration: \n\n%s", err))
 			return 1
 		}
 
 		config = *config.Merge(usrcfg)
 	}
 
-	ContextOpts.Providers = config.ProviderFactories()
-	ContextOpts.Provisioners = config.ProvisionerFactories()
+	// ContextOpts.Providers = config.ProviderFactories()
+	// ContextOpts.Provisioners = config.ProvisionerFactories()
 
 	exitCode, err := cli.Run()
 	if err != nil {
-		Ui.Error(fmt.Sprintf("Error executing CLI: %s", err.Error()))
+		UI.Error(fmt.Sprintf("Error executing CLI: %s", err.Error()))
 		return 1
 	}
 

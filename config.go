@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 
 	"github.com/hashicorp/hcl"
+	"github.com/media-tool/mediatool/mediatool"
 )
 
 // Config is the structure of the configuration for the mediatool CLI.
@@ -16,6 +17,9 @@ type Config struct {
 
 // BuiltinConfig is the built-in defaults for the configuration
 var BuiltinConfig Config
+
+// ContextOpts are the global ContextOpts we use to initialize the CLI.
+var ContextOpts mediatool.ContextOpts
 
 // ConfigFile returns the default path to the configuration file
 // On Unix-like systems, this is ~/.mediatoolrc
@@ -47,4 +51,15 @@ func LoadConfig(path string) (*Config, error) {
 	}
 
 	return &result, nil
+}
+
+// Discover discovers plugins.
+func (c *Config) Discover() error {
+	return nil
+}
+
+// Merge merges two configurations and returns a third with the values merged.
+func (c *Config) Merge(c2 *Config) *Config {
+	// do stuff
+	return c2
 }
