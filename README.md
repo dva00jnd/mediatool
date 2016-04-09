@@ -85,3 +85,16 @@ This is a list of possible commands or features, more or less taken from other p
 * info command to print info about a particular media item
 * missing command to discover items missing from your library (like tracks in an album, episodes in a show, etc.)
 * web GUI for viewing / managing library
+* remotely manage a media library on another source (cloud files, NAS, remote seedbox, etc.)
+
+## Configuration
+
+To accomplish the above, the config looks like the following:
+
+* Library
+  - dir - directory that contains the library
+  - tags - tags to apply to the library
+* Provider - an external source (metadata, downloads, etc.)
+* Source - a source for media / data
+* Filter - filter sources based on characteristics
+* Action - an action to take on sources

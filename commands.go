@@ -35,6 +35,11 @@ func init() {
 	}
 
 	Commands = map[string]cli.CommandFactory{
+		"init": func() (cli.Command, error) {
+			return &command.InitCommand{
+				Meta: meta,
+			}, nil
+		},
 		"version": func() (cli.Command, error) {
 			return &command.VersionCommand{
 				Meta:              meta,
