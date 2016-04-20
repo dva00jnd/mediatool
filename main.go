@@ -6,6 +6,7 @@ import (
 
 	"github.com/docopt/docopt-go"
 	"github.com/media-tool/mediatool/mediainfo"
+	"github.com/media-tool/mediatool/mediatool/config"
 )
 
 func main() {
@@ -30,4 +31,11 @@ Usage:
 	field := arguments["<field>"].(string)
 	val := info.Get(mediainfo.StreamGeneral, 0, field)
 	fmt.Println(val)
+
+	err, config := config.NewConfigFromFile("config.example.yml")
+	fmt.Println(err)
+	fmt.Println(config)
+	for _, library := range config.LibraryConfigs {
+		fmt.Println(library)
+	}
 }
