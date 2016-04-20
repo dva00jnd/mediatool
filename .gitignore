@@ -20,3 +20,6 @@ website/node_modules
 *.iml
 
 website/vendor
+dist/
+node_modules/
+*.mkv
