@@ -1,10 +1,7 @@
+/* eslint-disable no-console */
+
 import glob from 'glob';
 import path from 'path';
-
-const PLUGIN_SEARCH_PATHS = [
-  path.resolve(__dirname, '..', 'bin'),
-  ...process.env.PATH.split(':'),
-];
 
 export default class App {
   constructor() {
@@ -16,8 +13,12 @@ export default class App {
   }
 
   discoverPlugins() {
+    const searchPaths = new Set();
+    searchPaths.add(path.resolve(__dirname, '..', 'bin'));
+    process.env.PATH.split(':').forEach(p => searchPaths.add(path.resolve(p)));
+
     let plugins = [];
-    PLUGIN_SEARCH_PATHS.forEach(searchPath => {
+    searchPaths.forEach(searchPath => {
       const files = glob.sync(`${searchPath}/mediatool-plugin-*`);
       plugins = [
         ...files,
