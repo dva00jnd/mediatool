@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import Plugin from '../Plugin';
+import Plugin from 'Plugin';
 
 const infoPlugin = new Plugin({
   name: 'info',

@@ -3,6 +3,8 @@
 import glob from 'glob';
 import path from 'path';
 
+import { spawnChild } from 'RPC';
+
 export default class App {
   constructor() {
     this.plugins = {};
@@ -26,6 +28,9 @@ export default class App {
       ];
     });
 
-    console.log('plugins', plugins);
+    plugins.forEach(pluginPath => {
+      const plugin = spawnChild(pluginPath);
+      plugin.send('ping');
+    });
   }
 }

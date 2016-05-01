@@ -1,5 +1,5 @@
 import babel from 'gulp-babel';
-import babelPluginAutoImporter from 'fbjs-scripts/babel-6/auto-importer';
+// import babelPluginAutoImporter from 'fbjs-scripts/babel-6/auto-importer';
 import babelPluginModules from 'fbjs-scripts/babel-6/rewrite-modules';
 import del from 'del';
 import flatten from 'gulp-flatten';
@@ -16,7 +16,7 @@ const babelOpts = () => ({
   ...babelrc,
   plugins: [
     ...(babelrc.plugins || []),
-    babelPluginAutoImporter,
+    // babelPluginAutoImporter,
     [
       babelPluginModules,
       {
@@ -65,7 +65,7 @@ gulp.task('check-dependencies', () => gulp
   .pipe(gulpCheckDependencies())
 );
 
-gulp.task('watch', () => { gulp.watch(paths.src, ['modules']); });
+gulp.task('watch', ['lib'], () => { gulp.watch(paths.src, ['lib']); });
 
 gulp.task('build', cb => (
   runSequence('check-dependencies', 'clean', 'lib', cb)
