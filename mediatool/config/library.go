@@ -1,6 +1,6 @@
 package config
 
 type LibraryConfig struct {
-	ID   string `yaml:"-"`
-	Root string `yaml:"root"`
+	ID   string `json:"-"`
+	Root string `json:"root"`
 }
